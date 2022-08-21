@@ -1,0 +1,339 @@
+# Compile with ::: unicon scratch.icn -x
+
+link ximage
+link fullimag
+link tuple
+link strings
+link numbers
+link datecomp
+link datetime
+
+# Records are like structs
+record r_sample(field1, field2, field3)  # very smart to prepend records with r_
+record r_myrecord(number, fruit, animal) # very smart to prepend records with r_
+
+global var  # in general, smart to prepend globals with g_
+
+# This is a comment
+procedure main()
+
+    write("\n",center("WRITING TO STDOUT",35,"="))
+    write("Hello, world")
+    writes("This is unterminated.... ")  # writes doe not put newline.
+    write("Another","\t\t","sentence.")
+
+    write("\n",center("CALLING FUNCTIONS",35,"="))
+    other("my test")
+    add(5)
+
+    write("\n",center("ARRAY (LIST) OPS",35,"="))
+    an_array:= []
+    push(an_array,"abcdefg")
+    write(an_array[1])
+    write(an_array[1][3:5])  # elements at index 3 and 4
+
+    ## Tables
+    write("\n",center("TABLE OPS",35,"="))
+    T1 := table(0)
+
+    T1["aaa"]:="111"
+    T1[123]:="222"
+    insert(T1,"bbb","333")  # Docs say this method is much faster than above method
+
+    write(ximage(T1))
+    write(image(T1["aaa"]))
+    write(fullimage(T1))
+    
+    write(T1["aaa"],"\t",T1[123])
+
+    ## Set
+    write("\n",center("SET OPS",35,"="))
+    S1 := set("a","b","c")
+    write(ximage(S1))
+    write(image(S1))
+    write(fullimage(S1))
+
+    T2:= table(0)
+
+    T2[S1] := "map of set"
+    write("Table value with S1: ",T2[S1])
+
+    write("\n",center("RECORD OPS",35,"="))
+    R1 := r_sample("little", "timothy", 3)
+
+    write("R1.field1: ", R1.field1)
+    write("R1.field2: ", R1.field2)
+    write("R1.field3: ", R1.field3)
+
+    T2[R1] := "map of record"
+    write("Table value with R1: ",T2[R1])
+
+    # Table of table...
+    write("\n",center("TABLE of TABLE",35,"="))
+    T3:=table(table(0))
+    T3["this","that"]:="thing"
+    T3["one","more"]:="entry"
+    write("Show T3: ",fullimage(T3[]))
+    write("Table of table: ",T3["this","that"])
+    write("Table of table alternate: ",T3["this"]["that"]) # can index with [x,y] or [x][y]
+
+    # Tuple
+    write("\n",center("TUPLES",35,"="))
+    atuple:= tuple(["this","other","thing"])
+    T5:=table(0)
+    T5[atuple]:="tuple key"
+     write("Table of tuple: ",T5[atuple])
+
+    # Write tab-delimited file
+    write("\n",center("FILE-WRITING",35,"="))
+    fout:=open("test.out","w") | write("Could not open file for writing")
+    write(fout,"This\t\is\tdata\nfor\tyour\tcat.")
+    close(fout)
+
+    # File Reading
+    write("\n",center("FILE-READING",35,"="))
+    fout:=open("test.out","r") | write("Could not open file for reading")
+    while txt:=read(fout) do write(txt)
+    
+    fout:=open("test.out","r") | write("Could not open file for reading") #alternate way
+    while write(read(fout))
+
+    fout:=open("test.out","r") | write("Could not open file for reading") 
+    every put(fout_data := [],!fout) #pre-load into list and then do stuff in memory
+    every write(!fout)
+
+    # Tab-delimtied string splitting
+    write("\n",center("STRING-SPLITTING",35,"="))
+    test_string:="this\t\tis\tmy\ttab\tdelimited\tstring"
+    
+    the_words:=[]
+    every aword:=words(test_string,"\t") do put(the_words,aword) # Example with generator
+    write(ximage(the_words))
+
+    # fieldlist will pickup empty words, like \t\t
+    anotherlist:=fieldlist(test_string,"\t")
+    write(ximage(anotherlist))
+
+    # Tab-delimited with lines....
+    write("\n",center("TAB-DELIMITED LINES",35,"="))
+    test_sentences:="111\tapple\tcat\n222\tbanana\tdog\n333\tpeach\tfish"
+    lines:=fieldlist(test_sentences,"\n")
+
+    datatable:= table(0)
+    i:=0
+    every a_line:=!lines do {  # Exclamation turns list into iterable
+        split_line:= fieldlist(a_line,"\t")
+
+        datatable[i]:=r_myrecord(split_line[1],split_line[2],split_line[3])
+        write("Stored record:\t",fullimage(datatable[i]))
+        i+:=1
+    }
+
+    write(datatable[1].number,datatable[1].fruit,datatable[1].animal)
+
+    ## From numbers.icn
+    write("\n",center("NUMBER FROMATTING",35,"="))
+    write(mantissa(43322.8242))
+    write(commas(frn(43322.8258,0,2))) ## 43,322.83
+
+    ## String comparison
+    write("\n",center("STRING COMPARISONS",35,"="))
+    some_string:="thisisastring"
+    another_string:="thisisastring"
+    if some_string==another_string then write("strings match")
+
+    write(find("string",some_string))
+    write(find("this",some_string))
+
+    if find("this",some_string)==1 then write ("begins with this")
+
+    ## Slicing
+    write("\n",center("SLICING",35,"="))
+    other_string:="this is a long other string"
+    write(other_string[5:13])
+    write(other_string[5:*other_string+1]) # Remainder
+    write(other_string[0:-3]) # last three chars -> 'ing'
+
+    ## Concat lists
+    write("\n",center("CONCAT LISTS",35,"="))
+    list1:=[1,2,3]    
+    list2:=[4,5,6]
+    list3:=list1 ||| list2 # list concat with ||| (string concat is ||)
+    write(fullimage(list3)) # 1,2,3,4,5,6
+
+    ## Check if element in list
+    write("\n",center("MEMBERSHIP",35,"="))
+    if 1 == !list3 then write("number is in list3") else write("number is not in list3")
+    if 8 == !list3 then write("number is in list3") else write("number is not in list3")
+
+    ## Limiting a generator
+    write("\n",center("GENERATORS LIMITS",35,"="))
+    every write(powers(2))\5  # \ is a limitation operator
+    every i:= 1 to 3 do other(i)
+    every other(1 to 3)
+    every other(1 to 10 by 2) #1,3,5,7,9
+    every elem := !list3[3:*list3+1] do write(elem)
+
+    write("\n",center("THREADS",35,"="))
+    L := []
+    every i := !10 do put(L, thread write("Hello world! I am thread: " , i))
+    every wait(!L)
+    write("main: done")
+
+    write("\n",center("VARIABLE SHADOWS",35,"="))
+    var := 42
+    write("Var global is ", var)
+    subme()
+
+    write("\n",center("APPLY OPERATOR",35,"="))
+    write ! list3
+
+    write("\n",center("ADVANCED IF",35,"="))
+    some_string := "The variable is "
+    if_var := 43
+    some_string ||:= 0 < 100 > if_var  # same as 0 < if_var < 100 but if_var is the last truth thus returns
+    write(some_string) # the variable is 43
+
+    write("\n",center("NULL TEST",35,"="))
+    /some_null_var := 42 # initially null, / is null test
+    write("initially null var ",some_null_var) # 42
+    /some_null_var := 43  # does nothing as some_null_var is no longer null
+    write("no longer null var ",some_null_var) # 42
+    \some_null_var := 44 # changes as some_null_var is no longer null, \ is non-null test
+    write("non-null var ",some_null_var) # 44
+
+    write("\n",center("LIST FILTERING",35,"="))
+    every put(init_list:=[],1 to 10)
+    every put(filtered_list:=[], iseven(!init_list))
+    every write(!filtered_list)
+    every put(filtered_list:=[], varz:=!init_list & varz%2=0 & varz ) #alternate method w.o. procedure
+    every write(!filtered_list)
+
+    write("\n",center("COMPARING",35,"="))
+    if 0 = 0 then write("numeric equals") else write("not equals")  # < , <=, +, >-,>, ~=
+    if 5 > "1" then write("greater than") else write("nope") # will still return 'greater than' (does cast)
+    if "bravo" >> "alpha" then write("greater than") else write("nope") # alpgabetical comp
+    if "bravo" == "alpha" then write("greater than") else write("nope") # double == for string
+    if 5 === "5" then write("equals and same type") else write("nope") # three === for value comp, ~===
+    if left("tryingthis",3) == "try" then write ("matches") else write("nope") #left, right, center, repl, reverse, trim
+    
+    write("\n",center("REFLECTION",35,"="))
+    every write(fieldnames(datatable[0]))  # generates the names of the fields in the record (datatable[0] is record of r_myrecord)
+
+    write("\n",center("GEN WITH FAIL",35,"="))
+    every write(powers_with_fail(2))  # No limit \ operator, fail at a point.
+
+    write("\n",center("DATES",35,"="))
+    write(&date)  # mmmm/yy/dd
+    write(&dateline) # Friday, August 12, 2022 9:45 am
+
+    time_rec := gettimeofday() # Time in seconds and microseconds since epoch (time_rec.sec and time_rec.usec)
+    write(ctime(time_rec.sec)) # Converts epoch to a string time
+    write(gtime(time_rec.sec)) # in utc
+
+    # link datecomp to use
+    if dgt("2022/12/10","2011/10/09") then write ("greater than") else write ("not greater than")
+    if dlt("2005/12/10","2011/10/09") then write ("less than") else write ("not less than")
+    if betweendates("2005/12/10","2000/11/10","2005/12/11") then write ("between dates") else write ("not between") # 1st b/w 2nd & 3rd
+    if futuredate("2032/12/10") then write ("in future") else write ("in past")  # also see pastdate
+
+    write(getmonth("2022/12/10"),"-",getday("2022/12/10"),"-",getyear("2022/12/10"))
+    write(getmonth("2022/12/10 19:00:12"),"-",getday("2022/12/10 19:00:12"),"-",getyear("2022/12/10 19:00:12")) #works with trailing timeinfo
+
+    epochs := DateToSec("2022/12/10",-7)
+    write(epochs)
+    write(ctime(epochs)) # Converts epoch to a string time
+
+    write(days_add("2020/02/28",3)) # Leap year, 2020/03/02
+    write(days_add("2021/02/28",3)) # 2020/03/03
+    write(days_add("2020/02/28",-5)) # 2020/03/02
+    write(days_add("2020/02/28",2000)) # 2025/08/20
+   
+    write(days_diff("2020/02/28","2025/08/20")) # 2000
+    write(days_away("2022/08/15")) # 3 when ran 2022/08/12
+
+    write("\n",center("SSCANF MIMICK",35,"="))
+    tester := "link(blah,cat)also;"
+    extract := scanlist(tester,["link(",",",")",";"])
+    every ex := !extract do write("elem: ",ex)
+    extract := scanlist(tester,["cat"])
+    every ex := !extract do write("new: ", ex)
+
+    somecode := "AAAA-BBBB-10234-CCC"
+    extract := scanlist(somecode,["-","-","-"])
+    every ex := !extract do write("some_code: ", ex)
+end
+
+# link datetime to use
+procedure days_add(curr_date,days)
+    return SecToDate(DateToSec(curr_date,-7)+86400*days,-7)
+end
+
+procedure days_diff(ini_date,fin_date)
+    return (DateToSec(fin_date,-7)-DateToSec(ini_date,-7))/86400
+end
+
+procedure days_away(fin_date)
+    return (DateToSec(fin_date,-7)-DateToSec(&date,-7))/86400
+end
+
+procedure iseven(x)
+    if x % 2=0 then return x
+end
+
+procedure subme()
+    local var
+    var := 84 # local shadows the global
+    write("Var local is ", var)
+end
+
+# Generator procedure; suspend keyword indicates generator function
+procedure powers(i)
+    initial {
+        write("One time only. Ever.")  # will only be called once, even if powers called again in different loop.
+    }
+    write("Called once during start of generating...") #  because will be in repeat loop in first suspend.
+    j:= 0
+    repeat {  # only way to stop this repeat loop is with a limiter \ opertor or 'x to y' in the caller.
+        suspend i^j # optional [do expr] will execute expr *before* resuming
+        j +:= 1
+    }
+end
+
+# Generator procedure; suspend keyword indicates generator function
+procedure powers_with_fail(i)
+    j:= 0
+    repeat {  # infinite loop until fail
+        suspend i^j # optional [do expr] will execute expr *before* resuming
+        j +:= 1
+        if(j=4) then fail
+    }
+end
+
+procedure other(somestring)
+    write(somestring," is a great"," thing")
+end
+
+procedure add(aNumber)
+    i:= aNumber+7
+    write(i)
+end
+
+procedure scanlist(target,L)
+    local res := []
+    local idx := 1
+    local low:=1, high
+    # Everything before first element
+    if low := 1 & high := find(L[idx],target) & low < high then put(res,target[low:high]) else put (res,"")
+    # Everything between elements
+    while idx < *L do {
+        if low := find(L[idx],target)+(*L[idx]) & high := find(L[idx+1],target) & low < high then 
+            put(res,target[low:high]) 
+        else put (res,"")
+        idx +:= 1
+        target := target[low:0] # Consume the target, leaving from current low-point to rest.
+    }
+    # Everything after last element
+    if low := find(L[idx],target)+(*L[idx]) & high := *target+1 & low < high then put(res,target[low:high]) else put (res,"")
+    return res
+end
