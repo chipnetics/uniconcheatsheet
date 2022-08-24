@@ -262,6 +262,17 @@ procedure main()
     somecode := "AAAA-BBBB-10234-CCC"
     extract := scanlist(somecode,["-","-","-"])
     every ex := !extract do write("some_code: ", ex)
+
+    write("\n",center("DIRECT IF ASSIGNMENT",35,"="))
+    nv := if 5 < 6 then 7 else 8
+    write(nv) # 7
+    nv := if 5< 6 then { nv1:=5+4;nv2:=9*2} else 8
+    write(nv) # 18
+    rv := nv := 5 < 6 # Assign multiple vars at once (+diff memory locs)
+    write(nv," and ",rv) # 6 and 6
+    nv := 5 < 3 # would fail, so nv not re-assigned
+    write(nv) # still 6 
+
 end
 
 # link datetime to use
