@@ -150,9 +150,12 @@ procedure main()
     ## Slicing
     write("\n",center("SLICING",35,"="))
     other_string:="this is a long other string"
-    write(other_string[5:13])
-    write(other_string[5:*other_string+1]) # Remainder
-    write(other_string[0:-3]) # last three chars -> 'ing'
+    write("0:",other_string[0]) # Prints nothing as 0 fails
+    write("100:",other_string[100]) # Prints nothing as 100 fails
+    write("5 to 13:",other_string[5:13])
+    write("5 to rest:",other_string[5:*other_string+1]) # Remainder. Need +1 as end is exclusive.
+    write("0 to -3:",other_string[0:-3]) # last three chars -> 'ing'
+    write("4 to -3:",other_string[4:-3]) # between 4 and up to 3rd last char -> 's is a long other str'
 
     ## Concat lists
     write("\n",center("CONCAT LISTS",35,"="))
@@ -272,6 +275,21 @@ procedure main()
     write(nv," and ",rv) # 6 and 6
     nv := 5 < 3 # would fail, so nv not re-assigned
     write(nv) # still 6 
+
+    write("\n",center("EMBEDDED IF",35,"="))
+    test_arr := []
+    write("Var that does not exist: ",if /somevarz then "null" else "not null")
+    put(test_arr,["111","222","333"])
+    put(test_arr,["aaa",somevarz,"bbb"])
+    put(test_arr,["aaa",if /somevarz then "null" else somevarz*100,"bbb"])
+    write(fullimage(test_arr))
+
+    write("\n",center("LIST TO TAB-DELIM",35,"="))
+    somelist := ["this","is","a","list"]
+    concatz := ""
+    every concatz ||:= somelist[1 to *somelist] || "\t"
+    concatz[-1]:="" # Delete trailing tab.
+    write(concatz)
 
 end
 
