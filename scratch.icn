@@ -8,6 +8,14 @@ link numbers
 link datecomp
 link datetime
 
+# You can link your other .icn files here.  So if you have foo.icn link it with...
+# link foo
+# However you must also include it in your build command (unicon scratch.icn foo.icn)
+# Alternatively, you can include it by using
+# $include "foo.icn"
+# However if foo.icn has a syntax error, it will be reported as coming from scratch.icn,
+# since foo.icn was inserted into scratch.icn in-place.
+
 # Records are like structs
 record r_sample(field1, field2, field3)  # very smart to prepend records with r_
 record r_myrecord(number, fruit, animal) # very smart to prepend records with r_
@@ -119,7 +127,7 @@ procedure main()
     test_sentences:="111\tapple\tcat\n222\tbanana\tdog\n333\tpeach\tfish"
     lines:=fieldlist(test_sentences,"\n")
 
-    datatable:= table(0)
+    datatable:= table() # default value is &null.  If used table(0) default value would be 0.
     i:=0
     every a_line:=!lines do {  # Exclamation turns list into iterable
         split_line:= fieldlist(a_line,"\t")
