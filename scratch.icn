@@ -181,7 +181,8 @@ procedure main()
     if 8 == !list3 then write("number is in list3") else write("number is not in list3")
 
     write("\n",center("ALTERNATION",35,"="))
-    every j:=(1 to 3)|(3 to 1 by -1) do write(j," ")  # 1,2,3,3,2,1
+    every j:=(1 to 3)|(3 to 1 by -1) do write(j)  # 1,2,3,3,2,1
+    every j:=(1 to 3)|(8 to 6 by -1) & k:=(5 to 6) do write(j,"-",k)  # 1-5,1-6,2-5,2-6,3-5,3-6,8-5,8-6,7-5,7-6,6-5,6-6
 
     ## Limiting a generator
     write("\n",center("GENERATORS LIMITS",35,"="))
