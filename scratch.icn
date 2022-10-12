@@ -20,7 +20,9 @@ link datetime
 record r_sample(field1, field2, field3)  # very smart to prepend records with r_
 record r_myrecord(number, fruit, animal) # very smart to prepend records with r_
 
-global var  # in general, smart to prepend globals with g_
+global var  # in general, smart to prepend globals with g_.  Cannot init globals at this level.
+
+$define pi 3.14 # define constants
 
 # This is a comment
 procedure main()
@@ -174,8 +176,12 @@ procedure main()
 
     ## Check if element in list
     write("\n",center("MEMBERSHIP",35,"="))
+    # Example of goal directed, generator in a if statement.
     if 1 == !list3 then write("number is in list3") else write("number is not in list3")
     if 8 == !list3 then write("number is in list3") else write("number is not in list3")
+
+    write("\n",center("ALTERNATION",35,"="))
+    every j:=(1 to 3)|(3 to 1 by -1) do write(j," ")  # 1,2,3,3,2,1
 
     ## Limiting a generator
     write("\n",center("GENERATORS LIMITS",35,"="))
@@ -195,6 +201,7 @@ procedure main()
     var := 42
     write("Var global is ", var)
     subme()
+    write("Var global is ", var)
 
     write("\n",center("APPLY OPERATOR",35,"="))
     write ! list3
